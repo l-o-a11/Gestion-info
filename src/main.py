@@ -1,7 +1,26 @@
+# # print ("Sistema listo")  
 from colorama import init, Fore, Style, Back
+import os
+
+# init(autoreset=True)
+
+# # Crear adgoritmo de almacenamiento de datos en lista y tiene, manejo de funciones, orden de mayor a menor, listas, menu interactivo y manejo de errores
+
+# print (Fore.CYAN +"===================================================================================")
+# print( Back.BLUE +"======================Manejo de listas y errores====================================")
+# print (Style.BRIGHT + Fore.WHITE +"===================================================================================")
+# try: 
+#     print("Bienvenido al sistema de gestión de información")
+# except ValueError:
+#     print("Error: Valor no válido. Por favor, ingrese un número.")
+
 from service import GestorRegistros
+from file import load_data, save_data
 
 init(autoreset=True)
+
+# Ruta del archivo JSON
+DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'records.json')
 
 def mostrar_menu():
     """Muestra el menú principal"""
@@ -29,11 +48,14 @@ def crear_registro_interactivo(gestor):
         exito, mensaje, registro = gestor.crear_registro(id_persona, nombre, email, edad)
         
         if exito:
-            print(Fore.GREEN + " {mensaje}")
+            print(Fore.GREEN + f" {mensaje}")
             print(f"  ID: {registro['id']}")
             print(f"  Nombre: {registro['nombre']}")
             print(f"  Email: {registro['email']}")
             print(f"  Edad: {registro['edad']} años")
+            
+            # Guardar datos en archivo JSON
+            save_data(DATA_FILE, gestor.listar_registros())
         else:
             print(Fore.RED + f" {mensaje}")
     
@@ -108,6 +130,20 @@ def main():
     
     gestor = GestorRegistros()
     
+    # Cargar datos desde archivo JSON
+    print(Fore.CYAN + " Cargando datos desde el archivo...")
+    registros_cargados = load_data(DATA_FILE)
+    
+    if registros_cargados:
+        print(Fore.GREEN + f" Se cargaron {len(registros_cargados)} registros desde el archivo.\n")
+        # Restaurar registros en el gestor
+        for registro in registros_cargados:
+            gestor.registros.append(registro)
+            gestor.ids_unicos.add(registro['id'])
+            gestor.emails_unicos.add(registro['email'])
+    else:
+        print(Fore.YELLOW + "  No hay registros previos. Se inicia con lista vacía.\n")
+    
     while True:
         mostrar_menu()
         opcion = input("\nSeleccione una opción (1-5): ").strip()
@@ -130,59 +166,6 @@ def main():
         
         else:
             print(Fore.RED + " Opción no válida. Por favor, seleccione entre 1 y 5")
-        
-        input("Presione Enter para continuar...")
-
-
-if __name__ == "__main__":
-    main()
-    
-    print(" " + "="*50)
-    print("ESTADÍSTICAS")
-    print("="*50)
-    print("Total de registros: {total}")
-    print("IDs únicos registrados: {len(gestor.ids_unicos)}")
-    print("Emails únicos registrados: {len(gestor.emails_unicos)}")
-    
-    if registros:
-        edades = [r['edad'] for r in registros]
-        print("Edad promedio: {sum(edades)/len(edades):.1f} años")
-        print("Edad mínima: {min(edades)} años")
-        print("Edad máxima: {max(edades)} años")
-    
-    print("="*50)
-
-
-def main():
-    """Función principal - Menú interactivo"""
-    gestor = GestorRegistros()
-    
-    print(" " + "="*60)
-    print("BIENVENIDO AL SISTEMA DE GESTIÓN DE INFORMACIÓN")
-    print("="*60)
-    
-    while True:
-        mostrar_menu()
-        opcion = input("Seleccione una opción: ").strip()
-        
-        if opcion == '1':
-            crear_registro_interactivo(gestor)
-        
-        elif opcion == '2':
-            listar_registros_interactivo(gestor)
-        
-        elif opcion == '3':
-            buscar_registro_interactivo(gestor)
-        
-        elif opcion == '4':
-            mostrar_estadisticas(gestor)
-        
-        elif opcion == '5':
-            print("¡Hasta luego!")
-            break
-        
-        else:
-            print(" Opción no válida. Intente de nuevo.")
         
         input("Presione Enter para continuar...")
 
