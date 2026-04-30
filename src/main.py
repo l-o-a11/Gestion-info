@@ -1,26 +1,34 @@
-from colorama import init, Fore, Style
+from colorama import Fore, Style, init
 import os
-from menu import (mostrar_menu, new_register_interactivo, list_records_interactivo,
-                  buscar_registro_interactivo, update_record_interactivo,
-                  delete_record_interactivo, exportar_a_csv_interactivo,
-                  filtrar_registros_interactivo)
+import sys
+from pathlib import Path
 
+from menu import (
+    mostrar_menu,
+    new_register_interactivo,
+    list_records_interactivo,
+    buscar_registro_interactivo,
+    update_record_interactivo,
+    delete_record_interactivo,
+    exportar_a_csv_interactivo,
+    filtrar_registros_interactivo,
+)
 from service import GestorRegistros
-from file import load_data, save_data
 from integration import ManagerReportes
+from file import load_data, save_data
 
 init(autoreset=True)
 
 # Ruta del archivo JSON
-DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'records.json')
+DATA_FILE: str = str(Path(__file__).parent / '..' / 'data' / 'records.json')
 
 
-def main():
-    """Función principal del programa"""
+def main() -> None:
+    """Función principal del programa."""
     print(Fore.MAGENTA + Style.BRIGHT + "\n¡Bienvenido al Sistema de Gestión de Información!\n")
 
     gestor = GestorRegistros()
-    manager_reportes = ManagerReportes()  # Inicializar gestor de reportes
+    manager_reportes = ManagerReportes()
 
     # Cargar datos desde archivo JSON
     print(Fore.CYAN + " Cargando datos desde el archivo...")
@@ -30,9 +38,15 @@ def main():
         print(Fore.GREEN + f" Se cargaron {len(registros_cargados)} registros desde el archivo.\n")
         # Restaurar registros en el gestor
         for registro in registros_cargados:
-            gestor.registros.append(registro)
-            gestor.ids_unicos.add(registro['id'])
-            gestor.emails_unicos.add(registro['email'])
+            try:
+                gestor.new_register(
+                    str(registro['id']),
+                    registro['nombre'],
+                    registro['email'],
+                    str(registro['edad'])
+                )
+            except Exception:
+                pass
     else:
         print(Fore.YELLOW + "  No hay registros previos. Se inicia con lista vacía.\n")
 
@@ -63,7 +77,7 @@ def main():
 
         elif opcion == "8":
             print(Fore.MAGENTA + Style.BRIGHT + "\n¡Hasta luego!\n")
-            break
+            sys.exit(0)
 
         else:
             print(Fore.RED + " Opción no válida. Por favor, seleccione entre 1 y 8")

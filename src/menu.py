@@ -1,10 +1,16 @@
-from colorama import init, Fore, Style, Back
+from colorama import Fore, Style, init
 import os
+from typing import Optional
+
 from file import save_data
+from service import GestorRegistros
+from integration import ManagerReportes
+
+init(autoreset=True)
 
 
-def mostrar_menu():
-    """Muestra el menú principal"""
+def mostrar_menu() -> None:
+    """Muestra el menú principal."""
     print(Fore.CYAN + "=" * 70)
     print(Fore.CYAN + "SISTEMA DE GESTIÓN DE INFORMACIÓN")
     print(Fore.CYAN + "=" * 70)
@@ -19,8 +25,13 @@ def mostrar_menu():
     print(Fore.CYAN + "=" * 70)
 
 
-def new_register_interactivo(gestor, data_file):
-    """Permite crear un registro interactivamente"""
+def new_register_interactivo(gestor: GestorRegistros, data_file: str) -> None:
+    """Permite crear un registro interactivamente.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+        data_file: Ruta al archivo de datos para persistencia.
+    """
     print("\n" + Fore.YELLOW + "--- CREAR NUEVO REGISTRO ---")
 
     try:
@@ -38,7 +49,6 @@ def new_register_interactivo(gestor, data_file):
             print(f"  Email: {registro['email']}")
             print(f"  Edad: {registro['edad']} años")
 
-            # Guardar datos en archivo JSON
             save_data(data_file, gestor.list_records())
         else:
             print(Fore.RED + f" {mensaje}")
@@ -47,8 +57,12 @@ def new_register_interactivo(gestor, data_file):
         print(Fore.RED + f" Error inesperado: {e}")
 
 
-def list_records_interactivo(gestor):
-    """Muestra todos los registros registrados"""
+def list_records_interactivo(gestor: GestorRegistros) -> None:
+    """Muestra todos los registros registrados.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+    """
     registros = gestor.list_records()
 
     if not registros:
@@ -64,8 +78,12 @@ def list_records_interactivo(gestor):
         print(f"{registro['id']:<5} {registro['nombre']:<20} {registro['email']:<25} {registro['edad']:<5}")
 
 
-def buscar_registro_interactivo(gestor):
-    """Busca un registro por ID"""
+def buscar_registro_interactivo(gestor: GestorRegistros) -> None:
+    """Busca un registro por ID.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+    """
     try:
         id_buscar = int(input("\nIngrese ID a buscar: ").strip())
         registro = gestor.search_record(id_buscar)
@@ -85,15 +103,19 @@ def buscar_registro_interactivo(gestor):
         print(Fore.RED + f" Error: {e}")
 
 
-def update_record_interactivo(gestor, data_file):
-    """Actualiza un registro por ID"""
+def update_record_interactivo(gestor: GestorRegistros, data_file: str) -> None:
+    """Actualiza un registro por ID.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+        data_file: Ruta al archivo de datos para persistencia.
+    """
     try:
         id_actualizar = int(input("\nIngrese ID a actualizar: ").strip())
         nombre = input("Ingrese nuevo nombre (dejar vacío para no cambiar): ").strip()
         email = input("Ingrese nuevo email (dejar vacío para no cambiar): ").strip()
         edad = input("Ingrese nueva edad (dejar vacío para no cambiar): ").strip()
 
-        # Solo enviar campos que se desean actualizar
         nombre = nombre if nombre else None
         email = email if email else None
         edad = edad if edad else None
@@ -102,7 +124,6 @@ def update_record_interactivo(gestor, data_file):
 
         if exito:
             print(Fore.GREEN + f" {mensaje}")
-            # Guardar datos en archivo JSON
             save_data(data_file, gestor.list_records())
         else:
             print(Fore.RED + f" {mensaje}")
@@ -113,15 +134,19 @@ def update_record_interactivo(gestor, data_file):
         print(Fore.RED + f" Error: {e}")
 
 
-def delete_record_interactivo(gestor, data_file):
-    """Elimina un registro por ID"""
+def delete_record_interactivo(gestor: GestorRegistros, data_file: str) -> None:
+    """Elimina un registro por ID.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+        data_file: Ruta al archivo de datos para persistencia.
+    """
     try:
         id_eliminar = int(input("\nIngrese ID a eliminar: ").strip())
         exito, mensaje = gestor.delete_record(id_eliminar)
 
         if exito:
             print(Fore.GREEN + f" {mensaje}")
-            # Guardar datos en archivo JSON
             save_data(data_file, gestor.list_records())
         else:
             print(Fore.RED + f" {mensaje}")
@@ -132,8 +157,13 @@ def delete_record_interactivo(gestor, data_file):
         print(Fore.RED + f" Error: {e}")
 
 
-def exportar_a_csv_interactivo(gestor, manager_reportes):
-    """Exporta registros a CSV de forma interactiva"""
+def exportar_a_csv_interactivo(gestor: GestorRegistros, manager_reportes: ManagerReportes) -> None:
+    """Exporta registros a CSV de forma interactiva.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+        manager_reportes: Instancia del gestor de reportes.
+    """
     print("\n" + Fore.YELLOW + "--- EXPORTAR A CSV ---")
 
     try:
@@ -145,7 +175,7 @@ def exportar_a_csv_interactivo(gestor, manager_reportes):
             registros,
             nombre_archivo=nombre,
             incluir_timestamp=True,
-            encoding='utf-8-sig'  # Para compatibilidad con Excel en Windows
+            encoding='utf-8-sig'
         )
 
         if exito:
@@ -157,8 +187,13 @@ def exportar_a_csv_interactivo(gestor, manager_reportes):
         print(Fore.RED + f" Error: {e}")
 
 
-def filtrar_registros_interactivo(gestor, manager_reportes):
-    """Filtra y ordena registros de forma interactiva"""
+def filtrar_registros_interactivo(gestor: GestorRegistros, manager_reportes: ManagerReportes) -> None:
+    """Filtra y ordena registros de forma interactiva.
+
+    Args:
+        gestor: Instancia del gestor de registros.
+        manager_reportes: Instancia del gestor de reportes.
+    """
     print("\n" + Fore.YELLOW + "--- FILTRAR Y ORDENAR REGISTROS ---")
 
     try:
@@ -168,7 +203,6 @@ def filtrar_registros_interactivo(gestor, manager_reportes):
             print(Fore.YELLOW + "No hay registros para filtrar")
             return
 
-        # Opciones de filtrado
         print(Fore.CYAN + "\nOpciones de filtrado (dejar vacío para omitir):")
 
         edad_min_input = input("Edad mínima: ").strip()
@@ -176,7 +210,7 @@ def filtrar_registros_interactivo(gestor, manager_reportes):
         nombre_busca = input("Buscar en nombre: ").strip()
         email_busca = input("Buscar en email: ").strip()
 
-        print(Fore.CYAN + "Opciones de ordenamiento:")
+        print(Fore.CYAN + "\nOpciones de ordenamiento:")
         print("  - id (default)")
         print("  - nombre")
         print("  - email")
@@ -186,7 +220,6 @@ def filtrar_registros_interactivo(gestor, manager_reportes):
         orden_input = input("Orden (A=ascendente, D=descendente, default: A): ").strip().upper()
         orden_asc = orden_input != 'D'
 
-        # Construir filtros
         filtros = {}
         if edad_min_input:
             filtros['edad_min'] = int(edad_min_input)
@@ -200,7 +233,6 @@ def filtrar_registros_interactivo(gestor, manager_reportes):
         filtros['ordenar_por'] = ordenar_por
         filtros['orden_asc'] = orden_asc
 
-        # Aplicar filtros usando el manager recibido
         exito, mensaje, registros_filtrados = manager_reportes.filtrar_registros(registros, **filtros)
 
         if exito:
@@ -222,4 +254,3 @@ def filtrar_registros_interactivo(gestor, manager_reportes):
         print(Fore.RED + " Error: Debe ingresar valores numéricos en campos numéricos")
     except Exception as e:
         print(Fore.RED + f" Error: {e}")
-
